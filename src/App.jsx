@@ -24,10 +24,34 @@ function App(){
     fetchData();
   }, []);
 
-  function copyToClipboard(url){
-    navigator.clipboard.writeText(url);
-    alert("URL copied to clipboard");
-  };
+  async function copyToClipboard(url){
+    
+    try{
+
+      const img = await fetch(url);
+      const blob = await img.blob();
+
+      const canvas = document.createElement("canvas");
+      const canvastx = canvas.getContext("2d");
+
+      const imageBitmap = await createImageBitmap(blob);
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+      canvastx.drawImage(imageBitmap, 0, 0);
+
+      canvas.toBlob(async (pngBlob) => {
+        await navigator.clipboard.write( [ new ClipboardItem( { "image/png" : pngBlob }) ] );
+        alert("Image copied to clipboard!");
+      }, "image/png");
+
+    } 
+    
+    catch(err){
+      console.error("Copy failed", err);
+      alert("Failed to copy image.");
+    }
+
+  }
 
   return (
 
